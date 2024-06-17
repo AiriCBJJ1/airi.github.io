@@ -119,30 +119,30 @@ st.subheader("畫圖")
 ##### K線圖, 移動平均線 MA
 with st.expander("K線圖, 移動平均線"):
     fig1 = make_subplots(specs=[[{"secondary_y": True}]])
-    fig1.add_trace(go.Candlestick(x=KBar_df['Time'],
-                                  open=KBar_df['Open'], high=KBar_df['High'],
-                                  low=KBar_df['Low'], close=KBar_df['Close'], name='K線'),
+    fig1.add_trace(go.Candlestick(x=KBar_df['time'],
+                                  open=KBar_df['open'], high=KBar_df['high'],
+                                  low=KBar_df['low'], close=KBar_df['close'], name='K線'),
                    secondary_y=True)
-    fig1.add_trace(go.Bar(x=KBar_df['Time'], y=KBar_df['Volume'], name='成交量', marker=dict(color='black')), secondary_y=False)
-    fig1.add_trace(go.Scatter(x=KBar_df['Time'], y=KBar_df['MA_long'], mode='lines', line=dict(color='orange', width=2), name=f'{LongMAPeriod}-根 K棒 移動平均線'), secondary_y=True)
-    fig1.add_trace(go.Scatter(x=KBar_df['Time'], y=KBar_df['MA_short'], mode='lines', line=dict(color='pink', width=2), name=f'{ShortMAPeriod}-根 K棒 移動平均線'), secondary_y=True)
+    fig1.add_trace(go.Bar(x=KBar_df['time'], y=KBar_df['volume'], name='成交量', marker=dict(color='black')), secondary_y=False)
+    fig1.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['MA_long'], mode='lines', line=dict(color='orange', width=2), name=f'{LongMAPeriod}-根 K棒 移動平均線'), secondary_y=True)
+    fig1.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['MA_short'], mode='lines', line=dict(color='pink', width=2), name=f'{ShortMAPeriod}-根 K棒 移動平均線'), secondary_y=True)
 
     fig1.layout.yaxis2.showgrid = True
     st.plotly_chart(fig1, use_container_width=True)
 
-##### K線圖, RSI
 with st.expander("K線圖, 長短 RSI"):
     fig2 = make_subplots(specs=[[{"secondary_y": True}]])
-    fig2.add_trace(go.Candlestick(x=KBar_df['Time'],
-                                  open=KBar_df['Open'], high=KBar_df['High'],
-                                  low=KBar_df['Low'], close=KBar_df['Close'], name='K線'),
+    fig2.add_trace(go.Candlestick(x=KBar_df['time'],
+                                  open=KBar_df['open'], high=KBar_df['high'],
+                                  low=KBar_df['low'], close=KBar_df['close'], name='K線'),
                    secondary_y=True)
-    fig2.add_trace(go.Scatter(x=KBar_df['Time'], y=KBar_df['RSI_long'], mode='lines', line=dict(color='red', width=2), name=f'{LongRSIPeriod}-根 K棒 RSI'), secondary_y=False)
-    fig2.add_trace(go.Scatter(x=KBar_df['Time'], y=KBar_df['RSI_short'], mode='lines', line=dict(color='purple', width=2), name=f'{ShortRSIPeriod}-根 K棒 RSI'), secondary_y=False)
-    fig2.add_trace(go.Scatter(x=KBar_df['Time'], y=KBar_df['RSI_Middle'], mode='lines', line=dict(color='blue', width=2), name='50%線'), secondary_y=False)
+    fig2.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['RSI_long'], mode='lines', line=dict(color='red', width=2), name=f'{LongRSIPeriod}-根 K棒 RSI'), secondary_y=False)
+    fig2.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['RSI_short'], mode='lines', line=dict(color='purple', width=2), name=f'{ShortRSIPeriod}-根 K棒 RSI'), secondary_y=False)
+    fig2.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['RSI_Middle'], mode='lines', line=dict(color='blue', width=2), name='50%線'), secondary_y=False)
 
     fig2.layout.yaxis2.showgrid = True
     st.plotly_chart(fig2, use_container_width=True)
+
 
 
 
