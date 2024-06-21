@@ -219,8 +219,8 @@ with st.expander("成交量分析"):
     fig5.layout.yaxis2.showgrid = True
     st.plotly_chart(fig5, use_container_width=True)
 
-##### 財務報表分析
-financial_data = load_data('financial_data.pkl')
+##### 假設你有一個包含財務報表數據的 DataFrame
+financial_data = load_data('kbars_2330_2022-01-01-2022-11-18.pkl')
 
 with st.expander("財務報表分析"):
     st.write("財務報表數據", financial_data)
