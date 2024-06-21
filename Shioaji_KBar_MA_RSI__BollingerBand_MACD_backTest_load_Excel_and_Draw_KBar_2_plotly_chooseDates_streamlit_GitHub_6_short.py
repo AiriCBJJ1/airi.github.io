@@ -50,7 +50,7 @@ df = df_original[(df_original['Date'] >= start_date) & (df_original['Date'] <= e
 
 ###### (4) 數據處理 ######
 KBar_dic = {
-    'time': np.array([datetime.datetime.strptime(date, '%Y-%m-%d') for date in df['Date'].tolist()]),
+    'time': np.array([datetime.datetime.strptime(date, '%Y/%m/%d') for date in df['Date'].tolist()]),
     'product': np.repeat('tsmc', len(df)),
     'open': np.array(df['Open'].tolist()),
     'high': np.array(df['High'].tolist()),
