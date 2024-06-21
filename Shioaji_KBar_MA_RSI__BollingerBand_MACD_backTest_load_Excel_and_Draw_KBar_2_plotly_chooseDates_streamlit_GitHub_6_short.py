@@ -228,7 +228,7 @@ with st.expander("财务报表分析"):
     # 选择一个财务指标进行可视化
     financial_metric = st.selectbox('选择一个财务指标', financial_data.columns)
     fig6 = go.Figure()
-    fig6.add_trace(go.Bar(x=financial_data['日期'], y=financial_data[financial_metric], name=financial_metric))
+    fig6.add_trace(go.Bar(x=financial_data['time'], y=financial_data[financial_metric], name=financial_metric))
 
     st.plotly_chart(fig6, use_container_width=True)
 
