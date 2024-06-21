@@ -28,22 +28,8 @@ stc.html(html_temp)
 def load_data(file_path):
     df = pd.read_pickle(file_path)
     return df
-
+    
 df_original = load_data('kbars_2454.TW_2022-01-01_2022-11-18.pkl')
-
-# 加載數據
-@st.cache(allow_output_mutation=True)
-def load_data(file_url):
-    response = requests.get(file_url)
-    df = pd.read_pickle(io.BytesIO(response.content))
-    return df
-
-# 加載數據
-try:
-    df_original = load_data(file_url)
-except Exception as e:
-    st.error(f"加載數據時出現錯誤: {e}")
-    st.stop()
 
 # 刪除不必要的列
 if 'Unnamed: 0' in df_original.columns:
