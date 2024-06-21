@@ -31,18 +31,21 @@ def load_data(url):
 df_original = load_data('kbars_2454.TW_2022-01-01_2022-11-18.pkl')
 
 ###### (3) 設置日期區間選擇 ######
-st.subheader("選擇開始與結束的日期, 區間:2022-01-03 至 2022-11-18")
-start_date = st.text_input('選擇開始日期 (日期格式: 2022-01-03)', '2022-01-03')
-end_date = st.text_input('選擇結束日期 (日期格式: 2022-11-18)', '2022-11-18')
 
-try:
-    start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
-    end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
-except ValueError:
-    st.error("日期格式錯誤，請輸入正確的日期格式，如 2022-01-03")
-    st.stop()
+# 獲取日期選擇
+start_date = st.date_input("選擇開始日期", df_original['Date'].min())
+end_date = st.date_input("選擇結束日期", df_original['Date'].max())
 
+# 將字符串日期轉換為 datetime 對象
+start_date = pd.to_datetime(start_date)
+end_date = pd.to_datetime(end_date)
+
+# 篩選數據
 df = df_original[(df_original['Date'] >= start_date) & (df_original['Date'] <= end_date)]
+
+# 檢查篩選後的數據
+st.write("篩選後的數據:")
+st.write(df)
 
 ###### (4) 數據處理 ######
 KBar_dic = df.to_dict()
