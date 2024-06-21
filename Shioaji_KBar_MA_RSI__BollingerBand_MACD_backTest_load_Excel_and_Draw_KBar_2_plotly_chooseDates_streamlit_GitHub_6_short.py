@@ -42,7 +42,7 @@ except ValueError:
     st.error("日期格式錯誤，請輸入正確的日期格式，如 2022-01-03")
     st.stop()
 
-df = df_original[(df_original['time'] >= start_date) & (df_original['time'] <= end_date)]
+df = df_original[(df_original['Date'] >= start_date) & (df_original['Date'] <= end_date)]
 
 ###### (4) 數據處理 ######
 KBar_dic = df.to_dict()
