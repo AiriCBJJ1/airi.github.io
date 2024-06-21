@@ -26,7 +26,9 @@ def load_data(file_path):
     df = pd.read_pickle(file_path)
     return df
     
-df_original = load_data('kbars_2454.TW_2022-01-01_2022-11-18.pkl')
+# 請替換成您的實際檔案路徑
+file_path = r'C:\Users\mom38\Downloads\金融\kbars_2454.TW_2022-01-01_2022-11-18.pkl'
+df_original = load_data(file_path)
 
 # 刪除不必要的列
 if 'Unnamed: 0' in df_original.columns:
@@ -44,9 +46,11 @@ except ValueError:
     st.error("日期格式錯誤，請輸入正確的日期格式，如 2022-01-01")
     st.stop()
 
+# 假設檔案中有時間戳記的欄位為 'Date'
+df_original['time'] = pd.to_datetime(df_original['Date'])
+
 df = df_original[(df_original['time'] >= start_date) & (df_original['time'] <= end_date)]
 
 ###### (4) 顯示數據 ######
 st.subheader("顯示數據")
 st.write(df.head(10))  # 顯示前10行資料作為示例
-
