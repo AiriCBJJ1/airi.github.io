@@ -30,7 +30,7 @@ def load_data(url):
 
 df_original = load_data('kbars_2454.TW_2022-01-01_2022-11-18.csv')
 
-# 轉換日期欄位為 datetime
+# 轉換日期欄位為 datetime (如果尚未轉換)
 df_original['Date'] = pd.to_datetime(df_original['Date'])
 
 # 設置日期區間選擇
@@ -191,7 +191,7 @@ fig.update_yaxes(title_text="MACD", row=4, col=1)
 fig.update_layout(height=1000, width=1200, title_text="技術指標分析")
 
 # 顯示圖表
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig)
 
 ###### (8) 顯示原始資料 ######
 st.subheader("原始資料")
@@ -200,3 +200,4 @@ st.write(df)
 ###### (9) 顯示處理後的資料 ######
 st.subheader("處理後的資料")
 st.write(KBar_df)
+
