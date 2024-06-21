@@ -200,4 +200,3 @@ st.write(df)
 ###### (9) 顯示處理後的資料 ######
 st.subheader("處理後的資料")
 st.write(KBar_df)
-
