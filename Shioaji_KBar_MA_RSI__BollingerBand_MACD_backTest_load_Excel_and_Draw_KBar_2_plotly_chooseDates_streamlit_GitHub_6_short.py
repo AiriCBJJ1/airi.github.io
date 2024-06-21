@@ -1,5 +1,6 @@
 # 載入必要模組
 import os
+import requests
 import numpy as np
 import datetime
 import pandas as pd
@@ -28,15 +29,18 @@ def load_data(file_path):
     df = pd.read_pickle(file_path)
     return df
 
-# 確定正確的文件路徑
-file_path = 'C:\\Users\\mom38\\Downloads\\金融\\kbars_2454.TW_2022-01-01_2022-11-18.pkl'
+df_original = load_data('kbars_2454.TW_2022-01-01_2022-11-18.pkl')
+
+# 加載數據
+@st.cache(allow_output_mutation=True)
+def load_data(file_url):
+    response = requests.get(file_url)
+    df = pd.read_pickle(io.BytesIO(response.content))
+    return df
 
 # 加載數據
 try:
-    df_original = load_data(file_path)
-except FileNotFoundError:
-    st.error(f"文件未找到: {file_path}")
-    st.stop()
+    df_original = load_data(file_url)
 except Exception as e:
     st.error(f"加載數據時出現錯誤: {e}")
     st.stop()
@@ -44,7 +48,6 @@ except Exception as e:
 # 刪除不必要的列
 if 'Unnamed: 0' in df_original.columns:
     df_original = df_original.drop('Unnamed: 0', axis=1)
-
 ###### (3) 設置日期區間選擇 ######
 st.subheader("選擇開始與結束的日期, 區間:2022-01-03 至 2022-11-18")
 start_date = st.text_input('選擇開始日期 (日期格式: 2022-01-03)', '2022-01-03')
