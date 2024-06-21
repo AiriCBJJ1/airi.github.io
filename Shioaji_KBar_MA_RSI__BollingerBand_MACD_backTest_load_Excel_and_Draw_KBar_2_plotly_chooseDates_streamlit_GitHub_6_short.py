@@ -199,6 +199,3 @@ st.write(df)
 ###### (9) 顯示處理後的資料 ######
 st.subheader("處理後的資料")
 st.write(KBar_df)
-
-    fig7.layout.yaxis2.showgrid = True
-    st.plotly_chart(fig7, use_container_width=True)
