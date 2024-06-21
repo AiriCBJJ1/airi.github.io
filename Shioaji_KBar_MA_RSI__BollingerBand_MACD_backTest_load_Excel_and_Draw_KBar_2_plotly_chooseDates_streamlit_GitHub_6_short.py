@@ -26,9 +26,7 @@ def load_data(file_path):
     df = pd.read_pickle(file_path)
     return df
     
-# 請替換成您的實際檔案路徑
-file_path = r'C:\Users\mom38\Downloads\金融\kbars_2454.TW_2022-01-01_2022-11-18.pkl'
-df_original = load_data(file_path)
+df_original = load_data('kbars_2454.TW_2022-01-01_2022-11-18.pkl')
 
 # 刪除不必要的列
 if 'Unnamed: 0' in df_original.columns:
