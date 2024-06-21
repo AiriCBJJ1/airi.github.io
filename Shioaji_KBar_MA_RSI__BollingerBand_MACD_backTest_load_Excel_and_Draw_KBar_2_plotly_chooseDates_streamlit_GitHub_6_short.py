@@ -30,9 +30,6 @@ def load_data(url):
 
 df_original = load_data('kbars_2454.TW_2022-01-01_2022-11-18.pkl')
 
-# 刪除不必要的列
-df_original = df_original.drop('Unnamed: 0', axis=1)
-
 ###### (3) 設置日期區間選擇 ######
 st.subheader("選擇開始與結束的日期, 區間:2022-01-03 至 2022-11-18")
 start_date = st.text_input('選擇開始日期 (日期格式: 2022-01-03)', '2022-01-03')
