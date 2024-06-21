@@ -33,15 +33,15 @@ df_original = load_data('kbars_2454.TW_2022-01-01_2022-11-18.pkl')
 ###### (3) 設置日期區間選擇 ######
 
 # 獲取日期選擇
-start_date = st.date_input("選擇開始日期", df_original['Date'].min())
-end_date = st.date_input("選擇結束日期", df_original['Date'].max())
+start_date_raw = st.date_input("選擇開始日期", df_original['Date'].min())
+end_date_raw = st.date_input("選擇結束日期", df_original['Date'].max())
 
-# 將字符串日期轉換為 datetime 對象
-start_date = pd.to_datetime(start_date)
-end_date = pd.to_datetime(end_date)
+# 將日期從 pandas.Timestamp 轉換為 datetime.date
+start_date = pd.Timestamp(start_date_raw).date()
+end_date = pd.Timestamp(end_date_raw).date()
 
 # 篩選數據
-df = df_original[(df_original['Date'] >= start_date) & (df_original['Date'] <= end_date)]
+df = df_original[(df_original['Date'].dt.date >= start_date) & (df_original['Date'].dt.date <= end_date)]
 
 # 檢查篩選後的數據
 st.write("篩選後的數據:")
