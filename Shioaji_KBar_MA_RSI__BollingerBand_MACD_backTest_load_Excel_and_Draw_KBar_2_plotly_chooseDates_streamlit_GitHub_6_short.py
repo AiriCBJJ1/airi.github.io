@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.linear_model import LinearRegression
 
-# 自定义函数
+# 自定義函数
 import indicator_f_Lo2_short
 import indicator_forKBar_short
 
@@ -130,9 +130,9 @@ def calculate_macd(df, fast_period, slow_period, signal_period):
 
 KBar_df['MACD'], KBar_df['Signal_Line'], KBar_df['MACD_Histogram'] = calculate_macd(KBar_df, fast_period, slow_period, signal_period)
 
-# 布林帶
-st.subheader("設定布林帶參數")
-bollinger_period = st.slider('布林帶周期', 1, 50, 20)
+# 布林通道
+st.subheader("設定布林通道參數")
+bollinger_period = st.slider('布林通道周期', 1, 50, 20)
 bollinger_std = st.slider('標準差倍數', 1.0, 5.0, 2.0)
 
 def calculate_bollinger_bands(df, period, std):
@@ -192,8 +192,8 @@ with st.expander("MACD 指標"):
     fig3.layout.yaxis2.showgrid = True
     st.plotly_chart(fig3, use_container_width=True)
 
-##### K線圖, 布林帶
-with st.expander("布林帶"):
+##### K線圖, 布林通道
+with st.expander("布林通道"):
     fig4 = make_subplots(specs=[[{"secondary_y": True}]])
     fig4.add_trace(go.Candlestick(x=KBar_df['time'],
                                   open=KBar_df['open'], high=KBar_df['high'],
@@ -222,11 +222,11 @@ with st.expander("成交量分析"):
 ##### 假設你有一個包含財務報表數據的 DataFrame
 financial_data = load_data('kbars_2330_2022-01-01-2022-11-18.pkl')
 
-with st.expander("财务报表分析"):
-    st.write("财务报表数据", financial_data)
+with st.expander("財務報表分析"):
+    st.write("財務報表數據", financial_data)
 
-    # 选择一个财务指标进行可视化
-    financial_metric = st.selectbox('选择一个财务指标', financial_data.columns)
+    # 選擇一個財務指標進行視覺化
+    financial_metric = st.selectbox('選擇一個財務指標', financial_data.columns)
     fig6 = go.Figure()
     fig6.add_trace(go.Bar(x=financial_data['time'], y=financial_data[financial_metric], name=financial_metric))
 
@@ -245,7 +245,7 @@ future_dates = pd.date_range(start=KBar_df['time'].max(), periods=30, freq='D')
 X_future = np.arange(len(KBar_df), len(KBar_df) + len(future_dates)).reshape(-1, 1)
 y_future = model.predict(X_future)
 
-with st.expander("股价预测"):
+with st.expander("股價預測"):
     fig7 = make_subplots(specs=[[{"secondary_y": True}]])
     fig7.add_trace(go.Candlestick(x=KBar_df['time'],
                                   open=KBar_df['open'], high=KBar_df['high'],
