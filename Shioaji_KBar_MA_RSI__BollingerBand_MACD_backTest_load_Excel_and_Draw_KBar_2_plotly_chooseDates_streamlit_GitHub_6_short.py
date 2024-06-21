@@ -7,6 +7,7 @@ import streamlit as st
 import streamlit.components.v1 as stc 
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from sklearn.linear_model import LinearRegression
 
 # 自定义函数
 import indicator_f_Lo2_short
@@ -113,6 +114,40 @@ KBar_df['RSI_long'] = calculate_rsi(KBar_df, LongRSIPeriod)
 KBar_df['RSI_short'] = calculate_rsi(KBar_df, ShortRSIPeriod)
 KBar_df['RSI_Middle'] = np.array([50] * len(KBar_dic['time']))
 
+# MACD 指標
+st.subheader("設定 MACD 指標參數")
+fast_period = st.slider('快速指數平滑移動平均線 (EMA) 周期', 1, 50, 12)
+slow_period = st.slider('慢速指數平滑移動平均線 (EMA) 周期', 1, 50, 26)
+signal_period = st.slider('信號線 (Signal Line) 周期', 1, 50, 9)
+
+def calculate_macd(df, fast_period, slow_period, signal_period):
+    fast_ema = df['close'].ewm(span=fast_period, adjust=False).mean()
+    slow_ema = df['close'].ewm(span=slow_period, adjust=False).mean()
+    macd = fast_ema - slow_ema
+    signal_line = macd.ewm(span=signal_period, adjust=False).mean()
+    macd_histogram = macd - signal_line
+    return macd, signal_line, macd_histogram
+
+KBar_df['MACD'], KBar_df['Signal_Line'], KBar_df['MACD_Histogram'] = calculate_macd(KBar_df, fast_period, slow_period, signal_period)
+
+# 布林帶
+st.subheader("設定布林帶參數")
+bollinger_period = st.slider('布林帶周期', 1, 50, 20)
+bollinger_std = st.slider('標準差倍數', 1.0, 5.0, 2.0)
+
+def calculate_bollinger_bands(df, period, std):
+    ma = df['close'].rolling(window=period).mean()
+    std_dev = df['close'].rolling(window=period).std()
+    upper_band = ma + (std_dev * std)
+    lower_band = ma - (std_dev * std)
+    return ma, upper_band, lower_band
+
+KBar_df['Bollinger_MA'], KBar_df['Bollinger_Upper'], KBar_df['Bollinger_Lower'] = calculate_bollinger_bands(KBar_df, bollinger_period, bollinger_std)
+
+# 成交量移動平均
+volume_ma_period = st.slider('成交量移動平均周期', 1, 50, 20)
+KBar_df['Volume_MA'] = KBar_df['volume'].rolling(window=volume_ma_period).mean()
+
 ###### (7) 畫圖 ######
 st.subheader("畫圖")
 
@@ -123,27 +158,100 @@ with st.expander("K線圖, 移動平均線"):
                                   open=KBar_df['open'], high=KBar_df['high'],
                                   low=KBar_df['low'], close=KBar_df['close'], name='K線'),
                    secondary_y=True)
-    fig1.add_trace(go.Bar(x=KBar_df['time'], y=KBar_df['volume'], name='成交量', marker=dict(color='black')), secondary_y=False)
-    fig1.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['MA_long'], mode='lines', line=dict(color='orange', width=2), name=f'{LongMAPeriod}-根 K棒 移動平均線'), secondary_y=True)
-    fig1.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['MA_short'], mode='lines', line=dict(color='pink', width=2), name=f'{ShortMAPeriod}-根 K棒 移動平均線'), secondary_y=True)
+    fig1.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['MA_long'], mode='lines', line=dict(color='blue', width=2), name='MA_long'), secondary_y=True)
+    fig1.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['MA_short'], mode='lines', line=dict(color='red', width=2), name='MA_short'), secondary_y=True)
 
     fig1.layout.yaxis2.showgrid = True
     st.plotly_chart(fig1, use_container_width=True)
 
-with st.expander("K線圖, 長短 RSI"):
+##### K線圖, RSI指標
+with st.expander("K線圖, RSI指標"):
     fig2 = make_subplots(specs=[[{"secondary_y": True}]])
     fig2.add_trace(go.Candlestick(x=KBar_df['time'],
                                   open=KBar_df['open'], high=KBar_df['high'],
                                   low=KBar_df['low'], close=KBar_df['close'], name='K線'),
                    secondary_y=True)
-    fig2.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['RSI_long'], mode='lines', line=dict(color='red', width=2), name=f'{LongRSIPeriod}-根 K棒 RSI'), secondary_y=False)
-    fig2.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['RSI_short'], mode='lines', line=dict(color='purple', width=2), name=f'{ShortRSIPeriod}-根 K棒 RSI'), secondary_y=False)
-    fig2.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['RSI_Middle'], mode='lines', line=dict(color='blue', width=2), name='50%線'), secondary_y=False)
+    fig2.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['RSI_long'], mode='lines', line=dict(color='blue', width=2), name='RSI_long'), secondary_y=False)
+    fig2.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['RSI_short'], mode='lines', line=dict(color='red', width=2), name='RSI_short'), secondary_y=False)
+    fig2.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['RSI_Middle'], mode='lines', line=dict(color='gray', width=2, dash='dash'), name='RSI_Middle'), secondary_y=False)
 
     fig2.layout.yaxis2.showgrid = True
     st.plotly_chart(fig2, use_container_width=True)
 
+##### K線圖, MACD指標
+with st.expander("MACD 指標"):
+    fig3 = make_subplots(specs=[[{"secondary_y": True}]])
+    fig3.add_trace(go.Candlestick(x=KBar_df['time'],
+                                  open=KBar_df['open'], high=KBar_df['high'],
+                                  low=KBar_df['low'], close=KBar_df['close'], name='K線'),
+                   secondary_y=True)
+    fig3.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['MACD'], mode='lines', line=dict(color='blue', width=2), name='MACD'), secondary_y=False)
+    fig3.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['Signal_Line'], mode='lines', line=dict(color='orange', width=2), name='Signal Line'), secondary_y=False)
+    fig3.add_trace(go.Bar(x=KBar_df['time'], y=KBar_df['MACD_Histogram'], name='MACD Histogram', marker=dict(color='green')), secondary_y=False)
 
+    fig3.layout.yaxis2.showgrid = True
+    st.plotly_chart(fig3, use_container_width=True)
 
+##### K線圖, 布林帶
+with st.expander("布林帶"):
+    fig4 = make_subplots(specs=[[{"secondary_y": True}]])
+    fig4.add_trace(go.Candlestick(x=KBar_df['time'],
+                                  open=KBar_df['open'], high=KBar_df['high'],
+                                  low=KBar_df['low'], close=KBar_df['close'], name='K線'),
+                   secondary_y=True)
+    fig4.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['Bollinger_MA'], mode='lines', line=dict(color='blue', width=2), name='MA'), secondary_y=True)
+    fig4.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['Bollinger_Upper'], mode='lines', line=dict(color='red', width=2), name='Upper Band'), secondary_y=True)
+    fig4.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['Bollinger_Lower'], mode='lines', line=dict(color='green', width=2), name='Lower Band'), secondary_y=True)
 
+    fig4.layout.yaxis2.showgrid = True
+    st.plotly_chart(fig4, use_container_width=True)
 
+##### 成交量分析
+with st.expander("成交量分析"):
+    fig5 = make_subplots(specs=[[{"secondary_y": True}]])
+    fig5.add_trace(go.Candlestick(x=KBar_df['time'],
+                                  open=KBar_df['open'], high=KBar_df['high'],
+                                  low=KBar_df['low'], close=KBar_df['close'], name='K線'),
+                   secondary_y=True)
+    fig5.add_trace(go.Bar(x=KBar_df['time'], y=KBar_df['volume'], name='成交量', marker=dict(color='blue')), secondary_y=False)
+    fig5.add_trace(go.Scatter(x=KBar_df['time'], y=KBar_df['Volume_MA'], mode='lines', line=dict(color='red', width=2), name='成交量移動平均'), secondary_y=False)
+
+    fig5.layout.yaxis2.showgrid = True
+    st.plotly_chart(fig5, use_container_width=True)
+
+##### 假設你有一個包含財務報表數據的 DataFrame
+financial_data = load_data('financial_data.pkl')
+
+with st.expander("财务报表分析"):
+    st.write("财务报表数据", financial_data)
+
+    # 选择一个财务指标进行可视化
+    financial_metric = st.selectbox('选择一个财务指标', financial_data.columns)
+    fig6 = go.Figure()
+    fig6.add_trace(go.Bar(x=financial_data['日期'], y=financial_data[financial_metric], name=financial_metric))
+
+    st.plotly_chart(fig6, use_container_width=True)
+
+##### 股價預測
+# 準備訓練數據
+X = np.arange(len(KBar_df)).reshape(-1, 1)
+y = KBar_df['close'].values
+
+model = LinearRegression()
+model.fit(X, y)
+
+# 預測未來價格
+future_dates = pd.date_range(start=KBar_df['time'].max(), periods=30, freq='D')
+X_future = np.arange(len(KBar_df), len(KBar_df) + len(future_dates)).reshape(-1, 1)
+y_future = model.predict(X_future)
+
+with st.expander("股价预测"):
+    fig7 = make_subplots(specs=[[{"secondary_y": True}]])
+    fig7.add_trace(go.Candlestick(x=KBar_df['time'],
+                                  open=KBar_df['open'], high=KBar_df['high'],
+                                  low=KBar_df['low'], close=KBar_df['close'], name='K線'),
+                   secondary_y=True)
+    fig7.add_trace(go.Scatter(x=future_dates, y=y_future, mode='lines', line=dict(color='red', width=2), name='预测价格'), secondary_y=True)
+
+    fig7.layout.yaxis2.showgrid = True
+    st.plotly_chart(fig7, use_container_width=True)
