@@ -24,12 +24,22 @@ stc.html(html_temp)
 
 ###### (2) 加載數據 ######
 @st.cache_data(ttl=3600, show_spinner="正在加載資料...")
-def load_data(url):
-    df = pd.read_pickle(url)
+def load_data(file_path):
+    df = pd.read_pickle(file_path)
     return df
 
-# 更新這裡的 PKL 文件路徑
-df_original = load_data('C:\\Users\\mom38\\Downloads\\金融\\kbars_2454.TW_2022-01-01_2022-11-18.pkl')
+# 確定正確的文件路徑
+file_path = 'C:\\Users\\mom38\\Downloads\\金融\\kbars_2454.TW_2022-01-01_2022-11-18.pkl'
+
+# 加載數據
+try:
+    df_original = load_data(file_path)
+except FileNotFoundError:
+    st.error(f"文件未找到: {file_path}")
+    st.stop()
+except Exception as e:
+    st.error(f"加載數據時出現錯誤: {e}")
+    st.stop()
 
 # 刪除不必要的列
 if 'Unnamed: 0' in df_original.columns:
@@ -146,12 +156,8 @@ def calculate_bollinger_bands(df, period, std):
 
 KBar_df['Bollinger_MA'], KBar_df['Bollinger_Upper'], KBar_df['Bollinger_Lower'] = calculate_bollinger_bands(KBar_df, bollinger_period, bollinger_std)
 
-# 成交量移動平均
-volume_ma_period = st.slider('成交量移動平均周期', 1, 50, 20)
-KBar_df['Volume_MA'] = KBar_df['volume'].rolling(window=volume_ma_period).mean()
-
-###### (7) 畫圖 ######
-st.subheader("畫圖: 收盤價走勢圖及其他技術指標")
+###### (7) 繪製圖表 ######
+st.subheader("收盤價走勢圖及其他技術指標")
 fig = make_subplots(rows=4, cols=1, shared_xaxes=True, 
                     row_heights=[0.5, 0.1, 0.2, 0.2],
                     subplot_titles=("收盤價走勢圖", "成交量", "RSI", "MACD"))
@@ -183,14 +189,14 @@ fig.add_trace(go.Bar(x=KBar_df['time'], y=KBar_df['MACD_Histogram'], name='MACD�
 fig.update_layout(height=900, width=1200, title_text="技術指標圖")
 st.plotly_chart(fig)
 
-# 顯示表格數據
+###### (8) 顯示表格數據 ######
 st.subheader("顯示表格數據")
 st.write(KBar_df)
 
-# 保存數據
+###### (9) 保存數據 ######
 KBar_df.to_csv('processed_data.csv')
 st.success("數據已成功保存到 processed_data.csv")
 
-# 下載數據
+###### (10) 下載數據 ######
 st.subheader("下載數據")
 st.download_button(label="下載處理後的數據", data=KBar_df.to_csv(index=False), file_name='processed_data.csv', mime='text/csv')
