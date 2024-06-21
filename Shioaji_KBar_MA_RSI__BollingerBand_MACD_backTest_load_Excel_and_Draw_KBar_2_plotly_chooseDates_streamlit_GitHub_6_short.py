@@ -31,7 +31,7 @@ def load_data(url):
 df_original = load_data('kbars_2454.TW_2022-01-01_2022-11-18.csv')
 
 # 轉換日期欄位為 datetime (如果尚未轉換)
-df_original['Date'] = pd.to_datetime(df_original['Date'])
+df_original['Date'] = pd.to_datetime(df_original['Date'], format='%Y/%m/%d')
 
 # 設置日期區間選擇
 st.subheader("選擇開始與結束的日期, 區間:2022-01-01 至 2022-11-18")
@@ -50,13 +50,13 @@ df = df_original[(df_original['Date'] >= start_date) & (df_original['Date'] <= e
 
 ###### (4) 數據處理 ######
 KBar_dic = {
-    'time': np.array([datetime.datetime.strptime(date, '%Y/%m/%d') for date in df['Date'].tolist()]),
+    'time': df['Date'].to_numpy(),
     'product': np.repeat('tsmc', len(df)),
-    'open': np.array(df['Open'].tolist()),
-    'high': np.array(df['High'].tolist()),
-    'low': np.array(df['Low'].tolist()),
-    'close': np.array(df['Close'].tolist()),
-    'volume': np.array(df['Volume'].tolist())
+    'open': df['Open'].to_numpy(),
+    'high': df['High'].to_numpy(),
+    'low': df['Low'].to_numpy(),
+    'close': df['Close'].to_numpy(),
+    'volume': df['Volume'].to_numpy()
 }
 
 ###### (5) 設定 K 棒的時間長度 ######
@@ -66,7 +66,7 @@ cycle_duration = st.number_input('輸入一根 K 棒的時間長度(單位:分�
 Date = start_date.strftime("%Y-%m-%d")
 KBar = indicator_forKBar_short.KBar(Date, cycle_duration)
 
-for i in range(KBar_dic['time'].size):
+for i in range(len(KBar_dic['time'])):
     time = KBar_dic['time'][i]
     open_price = KBar_dic['open'][i]
     close_price = KBar_dic['close'][i]
@@ -77,7 +77,7 @@ for i in range(KBar_dic['time'].size):
 
 KBar_dic = {
     'time': KBar.TAKBar['time'],
-    'product': np.repeat('tsmc', KBar.TAKBar['time'].size),
+    'product': np.repeat('tsmc', len(KBar.TAKBar['time'])),
     'open': KBar.TAKBar['open'],
     'high': KBar.TAKBar['high'],
     'low': KBar.TAKBar['low'],
